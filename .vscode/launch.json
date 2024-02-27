@@ -1,0 +1,54 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "data_imageLabelMix",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/home/siplab5/Swin-Unet/data/Synapse_lung/data_imageLabelMix.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "dataset_prepare",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/home/siplab5/Swin-Unet/data/Synapse_lung/dataset_prepare.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "train",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/home/siplab5/Swin-Unet/TransUNet/train.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--dataset",
+                "Synapse",
+                "--cfg",
+                "/home/siplab5/Swin-Unet/TransUNet/configs/swin_tiny_patch4_window7_224_lite.yaml",
+                "--root_path",
+                "/home/siplab5/Swin-Unet/data/Synapse_lung",
+                "--max_epochs",
+                "150",
+                "--output_dir",
+                "/home/siplab5/Swin-Unet/TransUNet/model_out",
+                "--img_size",
+                "224",
+                "--base_lr",
+                "0.05",
+                "--batch_size",
+                "24"
+            ]
+        }
+    ]
+}
