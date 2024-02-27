@@ -1,4 +1,5 @@
 data
-TransUNet
 lung_dataset
 pretrained_ckpt
+model_out
+test_log
