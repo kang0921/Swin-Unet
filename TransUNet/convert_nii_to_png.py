@@ -2,11 +2,15 @@ import SimpleITK as sitk
 from skimage.util import montage
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
-def convert_nii_to_png(fileName):
+def convert_nii_to_png(_name):
 
-    fileName = "/home/siplab5/Swin-Unet/DATASET/nnUNet_raw/nnUNet_raw_data/Task055_Lung/imagesTr/Subj_4_0000"
-    fileType = ".nii.gz"
+    folder = "/home/siplab5/Swin-Unet/TransUNet/model_out/predictions"
+    # folder = "/home/siplab5/Swin-Unet/data/Synapse_lung/data_lung/testing_label/"
+    # folder = "/home/siplab5/Swin-Unet/data/Synapse_lung/data_lung/testing_image/"
+    fileName = os.path.join(folder, _name)
+    fileType = ".nii"
 
     img = sitk.ReadImage( fileName + fileType )
     img_arr = sitk.GetArrayFromImage(img)
@@ -18,5 +22,9 @@ def convert_nii_to_png(fileName):
     fig, ax = plt.subplots(1, 1, figsize = (20, 20))
     ax.imshow(montage(img_arr_4d[0]), cmap = 'gray')
 
-    plt.savefig(fileName + ".png")
+    plt.savefig("/home/siplab5/Swin-Unet/TransUNet/output_png/" + _name + ".png")
     plt.close()
+
+if __name__ == '__main__':
+    
+    convert_nii_to_png("Subj_1_pred")
