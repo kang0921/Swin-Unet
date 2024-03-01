@@ -7,6 +7,7 @@ import os
 def convert_nii_to_png(_name):
 
     folder = "/home/siplab5/Swin-Unet/TransUNet/model_out/predictions"
+    # folder = "/home/siplab5/Swin-Unet/data/Synapse_lung/data_lung/training_image"
     # folder = "/home/siplab5/Swin-Unet/data/Synapse_lung/data_lung/testing_label/"
     # folder = "/home/siplab5/Swin-Unet/data/Synapse_lung/data_lung/testing_image/"
     fileName = os.path.join(folder, _name)
@@ -14,10 +15,13 @@ def convert_nii_to_png(_name):
 
     img = sitk.ReadImage( fileName + fileType )
     img_arr = sitk.GetArrayFromImage(img)
-    print(img_arr.shape)
+    # print(img_arr.shape)
     
     img_arr_4d = img_arr[np.newaxis, ...]   # 將 3D 陣列轉換為 4D 陣列，添加一個額外的維度
-    print(img_arr_4d.shape)
+    # print(img_arr_4d.shape)
+    
+    img_arr_4d = np.transpose(img_arr_4d, (0, 3, 2, 1))
+    # print(img_arr_4d.shape)
 
     fig, ax = plt.subplots(1, 1, figsize = (20, 20))
     ax.imshow(montage(img_arr_4d[0]), cmap = 'gray')
@@ -27,4 +31,7 @@ def convert_nii_to_png(_name):
 
 if __name__ == '__main__':
     
+    convert_nii_to_png("Subj_1_gt")
+    convert_nii_to_png("Subj_1_img")
     convert_nii_to_png("Subj_1_pred")
+    # convert_nii_to_png("Subj_3_0000")
