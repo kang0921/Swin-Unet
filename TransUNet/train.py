@@ -31,7 +31,7 @@ parser.add_argument('--deterministic', type=int,  default=1,
 parser.add_argument('--base_lr', type=float,  default=0.01,
                     help='segmentation network learning rate')
 parser.add_argument('--img_size', type=int,
-                    default=512, help='input patch size of network input')
+                    default=224, help='input patch size of network input')
 parser.add_argument('--seed', type=int,
                     default=1234, help='random seed')
 parser.add_argument('--cfg', type=str, default='/home/siplab5/Swin-Unet/TransUNet/configs/swin_tiny_patch4_window7_224_lite.yaml',required=True, metavar="FILE", help='path to config file', )
@@ -61,8 +61,9 @@ if args.dataset == "Synapse":
     args.root_path = os.path.join(args.root_path, "train_npz")
 config = get_config(args)
 
-
 if __name__ == "__main__":
+    
+
     if not args.deterministic:
         cudnn.benchmark = True
         cudnn.deterministic = False

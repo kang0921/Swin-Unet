@@ -14,10 +14,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from utils import DiceLoss
 from torchvision import transforms
-from utils import test_single_volume
-# --- new add ---
-from pytorch_toolbelt import losses as L
-# ---
+from utils import test_single_volume, BinaryDiceLoss, JointLoss
+
 
 def trainer_synapse(args, model, snapshot_path):
     from datasets.dataset_synapse import Synapse_dataset, RandomGenerator
@@ -52,12 +50,22 @@ def trainer_synapse(args, model, snapshot_path):
     # --- new add 定義損失函數 ---
     bce_loss = nn.BCEWithLogitsLoss()
     dice_loss = BinaryDiceLoss()
-    loss_fn = L.JointLoss(first=dice_loss, second=bce_loss, first_weight=0.5, second_weight=0.5).cuda()
+    loss_fn = JointLoss(first=dice_loss, second=bce_loss, first_weight=0.5, second_weight=0.5).cuda()
     # ------
 
     # 優化器
     # optimizer = optim.SGD(model.parameters(), lr=base_lr, momentum=0.9, weight_decay=0.0001)
     optimizer = torch.optim.AdamW(model.parameters(), lr=base_lr, weight_decay=1e-3)
+
+    ''' learning rate scheduler
+    # learning rate scheduler之後可以加，可以稍微改進
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer,
+        T_0 = 2,        # 初始restart的epoch數目
+        T_mult = 2,     # 重啟之後因子，也就是每個restart後，T_0 = T_0 * T_mult
+        eta_min = 1e-6  # 最低學習率
+    )
+    '''
 
     # TensorBoard 寫入器
     writer = SummaryWriter(snapshot_path + '/log')
@@ -73,12 +81,16 @@ def trainer_synapse(args, model, snapshot_path):
             image_batch, label_batch = image_batch.cuda(), label_batch.cuda()
             outputs = model(image_batch)
 
+            print("outputs.shape:", outputs.shape)
+            print("label_batch.shape:", label_batch.shape)
+
             # 計算損失(這裡的ce_loss = CrossEntropyLoss()常用於多分類，換成BCELoss)
             # loss_ce = ce_loss(outputs, label_batch[:].long())
             # loss_dice = dice_loss(outputs, label_batch, softmax=True)
             # loss = 0.4 * loss_ce + 0.6 * loss_dice
-            outputs = torch.squeeze(outputs)
+            outputs = torch.squeeze(outputs)    # squeeze移除張量中尺寸為 1 的維度，用於簡化張量的形狀
 
+            loss = loss_fn(outputs, label_batch)
             # 反向傳播和優化
             optimizer.zero_grad()
             loss.backward()
