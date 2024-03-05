@@ -103,7 +103,8 @@ if __name__ == "__main__":
         'Synapse': {
             'Dataset': Synapse_dataset,
             'volume_path': args.volume_path,
-            'list_dir': '/home/siplab5/Swin-Unet/TransUNet/lists/lists_lung',
+            # 'list_dir': '/home/siplab5/Swin-Unet/TransUNet/lists/lists_lung',
+            'list_dir': 'D:\Swin-Unet\TransUNet\lists\lists_lung',
             'num_classes': 2,
             'z_spacing': 1,
         },
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     args.z_spacing = dataset_config[dataset_name]['z_spacing']
     args.is_pretrain = True
 
-    net = ViT_seg(config, img_size=args.img_size, num_classes=args.num_classes).cuda()
+    net = ViT_seg(config, img_size=args.img_size, num_classes=args.num_classes).cuda()  # SwinUnet
 
     snapshot = os.path.join(args.output_dir, 'best_model.pth')
     if not os.path.exists(snapshot): snapshot = snapshot.replace('best_model', 'epoch_'+str(args.max_epochs-1))
@@ -127,7 +128,11 @@ if __name__ == "__main__":
 
     log_folder = './test_log/test_log_'
     os.makedirs(log_folder, exist_ok=True)
-    logging.basicConfig(filename=log_folder + '/'+snapshot_name+".txt", level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')
+    log_filename = os.path.join(log_folder, snapshot_name + ".txt") # 在自己的電腦的路徑需要加上這行
+
+    logging.basicConfig(filename=log_filename, level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S') # 在server上的路徑要改成這行並註解掉下面那行
+    # logging.basicConfig(filename=log_folder + '/'+snapshot_name+".txt", level=logging.INFO, format='[%(asctime)s.%(msecs)03d] %(message)s', datefmt='%H:%M:%S')
+    
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logging.info(str(args))
     logging.info(snapshot_name)
@@ -139,5 +144,3 @@ if __name__ == "__main__":
     else:
         test_save_path = None
     inference(args, net, test_save_path)
-
-

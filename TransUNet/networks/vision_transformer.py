@@ -44,12 +44,14 @@ class SwinUnet(nn.Module):
                                 patch_norm=config.MODEL.SWIN.PATCH_NORM,
                                 use_checkpoint=config.TRAIN.USE_CHECKPOINT)
 
+    # 接受輸入張量x，通過swin_unet模型處理後，返回預測的分割結果（logits）
     def forward(self, x):
-        if x.size()[1] == 1:
-            x = x.repeat(1,3,1,1)
+        if x.size()[1] == 1:        # x 張量的通道數（channel數）， x.size()[1] 提取出通道數
+            x = x.repeat(1,3,1,1)   # 如果通道數為1，則使用 repeat 方法將 x 張量在通道維度上進行複製，使其擁有3個通道。這樣做的目的可能是為了處理灰度圖像，將其轉換為RGB格式，以符合模型的輸入要求
         logits = self.swin_unet(x)
         return logits
 
+    # 從預訓練模型中載入權重
     def load_from(self, config):
         pretrained_path = config.MODEL.PRETRAIN_CKPT
         if pretrained_path is not None:

@@ -24,18 +24,19 @@ class WeightedLoss(_Loss):
 class JointLoss(_Loss):
     'Wrap two loss functions into one. This class computes a weighted sum of two losses.'
 
-    def __init__(self, first: nn.Module, second: nn.Module, first_weight=1.0, second_weight=1.0):
+    def __init__(self, first: nn.Module, second: nn.Module, first_weight=1.0, second_weight=1.0):   # 當你創建 JointLoss 類的實例時被調用
         super().__init__()
         self.first = WeightedLoss(first, first_weight)
         self.second = WeightedLoss(second, second_weight)
 
-    def forward(self, *input):
+    # 將兩個損失的計算結果相加並返回
+    def forward(self, *input):  # 每次調用 JointLoss 實例時執行的方法
         return self.first(*input) + self.second(*input)
     
 class BinaryDiceLoss(nn.Module):
     """Dice loss of binary class
     Args:
-        smooth: A float number to smooth loss, and avoid NaN error, default: 1
+        smooth: A float number to smooth loss, and avoid NaN error, default: 1  -> 用於避免分母為零的情況
         p: Denominator value: \sum{x^p} + \sum{y^p}, default: 2
         predict: A tensor of shape [N, *]
         target: A tensor of shape same with predict
@@ -48,20 +49,25 @@ class BinaryDiceLoss(nn.Module):
     """
     def __init__(self, smooth=1, p=2, reduction='mean'):
         super(BinaryDiceLoss, self).__init__()
-        self.smooth = smooth
-        self.p = p
-        self.reduction = reduction
+        self.smooth = smooth        # 用於避免分母為零的情況
+        self.p = p                  # 分母的冪次數，默認值為 2
+        self.reduction = reduction  # 損失的降維方式，可以是 'mean'（平均）、'sum'（總和）或 'none'（不降維，返回每個樣本的損失），默認值為 'mean'
 
     def forward(self, predict, target):
-        assert predict.shape[0] == target.shape[0], "predict & target batch size don't match"
-        predict = predict.contiguous().view(predict.shape[0], -1)
-        target = target.contiguous().view(target.shape[0], -1)
+        assert predict.shape[0] == target.shape[0], "predict & target batch size don't match"   # [batch_size, height, width]
+        
+        # .contiguous()：這個方法的目的是確保張量在內存中是連續的
+        # 將三維的預測張量 predict 展平成二維，其中每一行對應一個樣本
+        predict = predict.contiguous().view(predict.shape[0], -1)   # 模型的預測分類機率或分割結果
+        target = target.contiguous().view(target.shape[0], -1)      # 真實的標籤或目標
 
-        num = torch.sum(torch.mul(predict, target), dim=1) + self.smooth
-        den = torch.sum(predict.pow(self.p) + target.pow(self.p), dim=1) + self.smooth
+        
+        num = torch.sum(torch.mul(predict, target), dim=1) + self.smooth                # 分子
+        den = torch.sum(predict.pow(self.p) + target.pow(self.p), dim=1) + self.smooth  # 分母
 
-        loss = 1 - num / den
+        loss = 1 - num / den    # 計算損失
 
+        # 根據 reduction 的值降維，返回最終的損失值
         if self.reduction == 'mean':
             return loss.mean()
         elif self.reduction == 'sum':

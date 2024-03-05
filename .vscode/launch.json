@@ -12,43 +12,22 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "data_imageLabelMix",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "/home/siplab5/Swin-Unet/data/Synapse_lung/data_imageLabelMix.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "dataset_prepare",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "/home/siplab5/Swin-Unet/data/Synapse_lung/dataset_prepare.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "visualize_npy_h5",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "/home/siplab5/Swin-Unet/data/Synapse_lung/visualize_npy_h5.py",
-            "console": "integratedTerminal"
-        },
-        {
             "name": "train",
             "type": "debugpy",
             "request": "launch",
-            "program": "/home/siplab5/Swin-Unet/TransUNet/train.py",
+            "program": "D:\\Swin-Unet\\TransUNet\\train.py",
             "console": "integratedTerminal",
             "args": [
                 "--dataset",
                 "Synapse",
                 "--cfg",
-                "/home/siplab5/Swin-Unet/TransUNet/configs/swin_tiny_patch4_window7_224_lite.yaml",
+                "D:\\Swin-Unet\\TransUNet\\configs\\swin_tiny_patch4_window7_224_lite.yaml",
                 "--root_path",
-                "/home/siplab5/Swin-Unet/data/Synapse_lung",
+                "D:\\Swin-Unet\\data\\Synapse_lung",
                 "--max_epochs",
-                "150",
+                "25",
                 "--output_dir",
-                "/home/siplab5/Swin-Unet/TransUNet/model_out",
+                "D:\\Swin-Unet\\TransUNet\\model_out",
                 "--img_size",
                 "224",
                 "--base_lr",

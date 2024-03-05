@@ -24,7 +24,7 @@ def random_rotate(image, label):
     label = ndimage.rotate(label, angle, order=0, reshape=False)
     return image, label
 
-
+# 將原始影像和標籤進行隨機旋轉、翻轉、縮放等變換的操作，並將其轉換為 PyTorch 張量的類
 class RandomGenerator(object):
     def __init__(self, output_size):
         self.output_size = output_size
@@ -48,27 +48,32 @@ class RandomGenerator(object):
 
 class Synapse_dataset(Dataset):
     def __init__(self, base_dir, list_dir, split, transform=None):
-        self.transform = transform  # using transform in torch!
-        self.split = split
-        self.sample_list = open(os.path.join(list_dir, self.split+'.txt')).readlines()
-        self.data_dir = base_dir
+        self.transform = transform  # 將原始影像和標籤進行隨機旋轉、翻轉、縮放等變換的操作
+        self.split = split          # 指定數據集的切分（例如，訓練集、驗證集或測試集）
+        self.sample_list = open(os.path.join(list_dir, self.split+'.txt')).readlines()  # list_dir: 數據樣本列表所在的目錄
+        self.data_dir = base_dir    # 數據集的基本目錄，用於構造完整的數據路徑
 
     def __len__(self):
         return len(self.sample_list)
 
+    # 取得數據集中指定索引（idx）的單個樣本
     def __getitem__(self, idx):
-        if self.split == "train":
+        
+        if self.split == "train":  # train
             slice_name = self.sample_list[idx].strip('\n')
             data_path = os.path.join(self.data_dir, slice_name+'.npz')
             data = np.load(data_path)
             image, label = data['image'], data['label']
-        else:
+        
+        else:   # test
             vol_name = self.sample_list[idx].strip('\n')
             filepath = self.data_dir + "/{}.npy.h5".format(vol_name)
             data = h5py.File(filepath)
             image, label = data['image'][:], data['label'][:]
 
         sample = {'image': image, 'label': label}
+
+        # transform=transforms.Compose([RandomGenerator(output_size=[args.img_size, args.img_size])])
         if self.transform:
             sample = self.transform(sample)
         sample['case_name'] = self.sample_list[idx].strip('\n')

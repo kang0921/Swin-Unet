@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
-    net = ViT_seg(config, img_size=args.img_size, num_classes=args.num_classes).cuda()
+    net = ViT_seg(config, img_size=args.img_size, num_classes=args.num_classes).cuda()  # Swin-Unet
     net.load_from(config)
 
     trainer = {'Synapse': trainer_synapse,}
