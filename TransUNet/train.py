@@ -11,14 +11,14 @@ from config import get_config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', type=str,
-                    default='/home/siplab5/Swin-Unet/data/Synapse_lung', help='root dir for data')
+                    default='D:\Swin-Unet\data\Synapse_lung', help='root dir for data')
 parser.add_argument('--dataset', type=str,
                     default='Synapse_lung', help='experiment_name')
 parser.add_argument('--list_dir', type=str,
-                    default='/home/siplab5/Swin-Unet/TransUNet/lists/lists_lung', help='list dir')
+                    default='D:\Swin-Unet\TransUNet\lists\lists_lung', help='list dir')
 parser.add_argument('--num_classes', type=int,
                     default=2, help='output channel of network')
-parser.add_argument('--output_dir', type=str, default='/home/siplab5/Swin-Unet/TransUNet/model_out', help='output dir')                   
+parser.add_argument('--output_dir', type=str, default='D:\Swin-Unet\TransUNet\model_out', help='output dir')                   
 parser.add_argument('--max_iterations', type=int,
                     default=30000, help='maximum epoch number to train')
 parser.add_argument('--max_epochs', type=int,
@@ -31,10 +31,10 @@ parser.add_argument('--deterministic', type=int,  default=1,
 parser.add_argument('--base_lr', type=float,  default=0.01,
                     help='segmentation network learning rate')
 parser.add_argument('--img_size', type=int,
-                    default=224, help='input patch size of network input')
+                    default=512, help='input patch size of network input')
 parser.add_argument('--seed', type=int,
                     default=1234, help='random seed')
-parser.add_argument('--cfg', type=str, default='/home/siplab5/Swin-Unet/TransUNet/configs/swin_tiny_patch4_window7_224_lite.yaml',required=True, metavar="FILE", help='path to config file', )
+parser.add_argument('--cfg', type=str, default='D:\Swin-Unet\TransUNet\configs\swin_tiny_patch4_window7_224_lite.yaml',required=True, metavar="FILE", help='path to config file', )
 parser.add_argument(
         "--opts",
         help="Modify config options by adding 'KEY VALUE' pairs. ",
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     dataset_config = {
         'Synapse': {
             'root_path': args.root_path,
-            'list_dir': '/home/siplab5/Swin-Unet/TransUNet/lists/lists_lung',
+            'list_dir': 'D:\Swin-Unet\TransUNet\lists\lists_lung',
             'num_classes': 2,
         },
     }
