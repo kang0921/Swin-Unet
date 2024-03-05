@@ -46,14 +46,14 @@ def trainer_synapse(args, model, snapshot_path):
     model.train()
 
     # 定義損失函數
-    # ce_loss = CrossEntropyLoss()
-    # dice_loss = DiceLoss(num_classes)
+    ce_loss = CrossEntropyLoss()
+    dice_loss = DiceLoss(num_classes)
 
     # --- new add 定義損失函數 ---
-    bce_loss = nn.BCEWithLogitsLoss()
-    dice_loss = nn.BCEWithLogitsLoss()
-    # dice_loss = BinaryDiceLoss()
-    loss_fn = JointLoss(first=dice_loss, second=bce_loss, first_weight=0.5, second_weight=0.5).cuda()
+    # bce_loss = nn.BCEWithLogitsLoss()
+    # dice_loss = nn.BCEWithLogitsLoss()
+    # # dice_loss = BinaryDiceLoss()
+    # loss_fn = JointLoss(first=dice_loss, second=bce_loss, first_weight=0.5, second_weight=0.5).cuda()
     # ------
 
     # 優化器
@@ -81,19 +81,21 @@ def trainer_synapse(args, model, snapshot_path):
     for epoch_num in iterator:
         for i_batch, sampled_batch in enumerate(trainloader):
             image_batch, label_batch = sampled_batch['image'], sampled_batch['label']
+            # print("image_batch.shape", image_batch.shape)
+            # print("label_batch.shape", label_batch.shape)
             image_batch, label_batch = image_batch.cuda(), label_batch.cuda()
             outputs = model(image_batch)
-            print("")
-            print("outputs.shape:", outputs.shape)
-            print("label_batch.shape:", label_batch.shape)
-            print("")
+            # print("")
+            # print("outputs.shape:", outputs.shape)
+            # print("label_batch.shape:", label_batch.shape)
+            # print("")
             # 計算損失(這裡的ce_loss = CrossEntropyLoss()常用於多分類，換成BCELoss)
-            # loss_ce = ce_loss(outputs, label_batch[:].long())
-            # loss_dice = dice_loss(outputs, label_batch, softmax=True)
-            # loss = 0.4 * loss_ce + 0.6 * loss_dice
-            outputs = torch.squeeze(outputs)    # squeeze移除張量中尺寸為 1 的維度，用於簡化張量的形狀
+            loss_ce = ce_loss(outputs, label_batch[:].long())
+            loss_dice = dice_loss(outputs, label_batch, softmax=True)
+            loss = 0.4 * loss_ce + 0.6 * loss_dice
+            # outputs = torch.squeeze(outputs)    # squeeze移除張量中尺寸為 1 的維度，用於簡化張量的形狀
 
-            loss = loss_fn(outputs, label_batch)
+            # loss = loss_fn(outputs, label_batch)
             # 反向傳播和優化
             optimizer.zero_grad()
             loss.backward()
@@ -109,10 +111,10 @@ def trainer_synapse(args, model, snapshot_path):
             # TensorBoard 日誌
             writer.add_scalar('info/lr', lr_, iter_num)
             writer.add_scalar('info/total_loss', loss, iter_num)
-            # writer.add_scalar('info/loss_ce', loss_ce, iter_num)
+            writer.add_scalar('info/loss_ce', loss_ce, iter_num)
 
             # 記錄信息
-            # logging.info('iteration %d : loss : %f, loss_ce: %f' % (iter_num, loss.item(), loss_ce.item()))
+            logging.info('iteration %d : loss : %f, loss_ce: %f' % (iter_num, loss.item(), loss_ce.item()))
 
             # 將圖片記錄到 TensorBoard
             # if iter_num % 20 == 0:                

@@ -6,7 +6,8 @@ import torch
 from scipy import ndimage
 from scipy.ndimage.interpolation import zoom
 from torch.utils.data import Dataset
-
+from torchvision.transforms.functional import resize
+from torchvision.transforms.functional import to_pil_image, to_tensor
 
 def random_rot_flip(image, label):
     k = np.random.randint(0, 4)
@@ -38,8 +39,16 @@ class RandomGenerator(object):
             image, label = random_rotate(image, label)
         x, y = image.shape
         if x != self.output_size[0] or y != self.output_size[1]:
-            image = zoom(image, (self.output_size[0] / x, self.output_size[1] / y), order=3)  # why not 3?
+            image = zoom(image, (self.output_size[0] / x, self.output_size[1] / y), order=3)  # order=3 表示使用三次多項式插值。插值的次數越高，插值的精確性通常越高
             label = zoom(label, (self.output_size[0] / x, self.output_size[1] / y), order=0)
+        
+        # 確保 image 的大小是 (224, 224)
+        if image.shape[0] != 224 or image.shape[1] != 224:
+            image = zoom(image, (224 / image.shape[0], 224 / image.shape[1]), order=3)
+            label = zoom(label, (224 / label.shape[0], 224 / label.shape[1]), order=3)
+        # print("image.shape:", image.shape)
+        # print("label.shape:", label.shape)
+
         image = torch.from_numpy(image.astype(np.float32)).unsqueeze(0)
         label = torch.from_numpy(label.astype(np.float32))
         sample = {'image': image, 'label': label.long()}
@@ -70,6 +79,24 @@ class Synapse_dataset(Dataset):
             filepath = self.data_dir + "/{}.npy.h5".format(vol_name)
             data = h5py.File(filepath)
             image, label = data['image'][:], data['label'][:]
+
+            # 將 NumPy 陣列轉換為 PyTorch 張量
+            image_tensor = to_tensor(image)
+            label_tensor = to_tensor(label)
+
+            # 指定目標大小
+            target_size = (224, 224)
+
+            # 進行插值
+            resized_image_tensor = resize(to_pil_image(image_tensor), target_size)
+            resized_label_tensor = resize(to_pil_image(label_tensor), target_size)
+
+            # 將插值後的張量轉換回 NumPy 陣列
+            image = to_tensor(resized_image_tensor).numpy()
+            label = to_tensor(resized_label_tensor).numpy()
+
+            image = image.permute(1, 2, 0)
+            label = label.permute(1, 2, 0)
 
         sample = {'image': image, 'label': label}
 

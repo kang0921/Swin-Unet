@@ -3,3 +3,4 @@ lung_dataset
 pretrained_ckpt
 model_out
 test_log
+TransUNet/__pycache__/

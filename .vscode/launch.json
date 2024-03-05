@@ -35,6 +35,32 @@
                 "--batch_size",
                 "8"
             ]
+        },
+        {
+            "name": "test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "D:\\Swin-Unet\\TransUNet\\test.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--dataset"
+                ,"Synapse",
+                "--cfg",
+                "D:\\Swin-Unet\\TransUNet\\configs\\swin_tiny_patch4_window7_224_lite.yaml",
+                "--is_savenii",
+                "--volume_path",
+                "D:\\Swin-Unet\\data\\Synapse_lung",
+                "--output_dir",
+                "D:\\Swin-Unet\\TransUNet\\model_out",
+                "--max_epoch",
+                "25",
+                "--base_lr",
+                "0.05",
+                "--img_size",
+                "512",
+                "--batch_size",
+                "8"
+            ]
         }
     ]
 }

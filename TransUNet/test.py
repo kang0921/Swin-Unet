@@ -14,6 +14,8 @@ from utils import test_single_volume
 from networks.vision_transformer import SwinUnet as ViT_seg
 from trainer import trainer_synapse
 from config import get_config
+from scipy.ndimage.interpolation import zoom
+from torch.nn.functional import interpolate
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--volume_path', type=str,
@@ -21,7 +23,7 @@ parser.add_argument('--volume_path', type=str,
 parser.add_argument('--dataset', type=str,
                     default='Synapse', help='experiment_name')
 parser.add_argument('--num_classes', type=int,
-                    default=9, help='output channel of network')
+                    default=2, help='output channel of network')
 parser.add_argument('--list_dir', type=str,
                     default='./lists/lists_Synapse', help='list dir')
 parser.add_argument('--output_dir', type=str, help='output dir')   
@@ -73,6 +75,23 @@ def inference(args, model, test_save_path=None):
     for i_batch, sampled_batch in tqdm(enumerate(testloader)):
         h, w = sampled_batch["image"].size()[2:]
         image, label, case_name = sampled_batch["image"], sampled_batch["label"], sampled_batch['case_name'][0]
+        # image = torch.squeeze(image)
+        # label = torch.squeeze(label)
+        
+        image = image.permute(0, 3, 1, 2)
+
+        # 將形狀從 [1, 512, 512, 4] 改為 [1, 224, 224, 4]
+        desired_shape = (224, 224)
+        image = interpolate(image, size=desired_shape, mode='bilinear', align_corners=False)
+
+        # 將 channel 放回原位
+        image = image.permute(0, 2, 3, 1)
+
+        # if image.shape[0] != 224 or image.shape[1] != 224:
+        #     image = zoom(image, (224 / image.shape[0], 224 / image.shape[1], 1), order=3)
+        #     label = zoom(label, (224 / label.shape[0], 224 / label.shape[1], 1), order=3)
+
+
         metric_i = test_single_volume(image, label, model, classes=args.num_classes, patch_size=[args.img_size, args.img_size],
                                       test_save_path=test_save_path, case=case_name, z_spacing=args.z_spacing)
         metric_list += np.array(metric_i)
